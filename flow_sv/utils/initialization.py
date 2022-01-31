@@ -50,6 +50,8 @@ def initialize(config: Namespace):
             config=config.__dict__,
             project=config.wandb_project,
             sync_tensorboard=True,
+            dir='logs/',
+            save_dir='logs/',
         ))
 
     logger.append(TensorBoardLogger('logs/'))

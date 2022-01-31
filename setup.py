@@ -20,11 +20,11 @@ def get_version(rel_path):
 setup(
     name='flow_sv',
     version=get_version('flow_sv/__init__.py'),
-    description='Deep Unsupervised Optical Flow in Pytorch',
-    long_description='Deep Unsupervised Optical Flow in Pytorch',
+    description='Optical Flow in Pytorch',
+    long_description='Optical Flow in Pytorch',
     long_description_content_type='text/markdown',
     author='Ruslan Baynazarov',
-    author_email='ruslan.baynazarov@fastsense.tech',
+    author_email='baynazarov.rr14@physics.msu.ru',
     url='',
     packages=[
         'flow_sv',

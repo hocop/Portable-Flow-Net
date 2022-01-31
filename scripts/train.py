@@ -23,6 +23,9 @@ def main(config):
     lit_module = flow_sv.pl_module.LitFlow(**config.__dict__)
     if config.load_from is not None:
         lit_module = lit_module.load_from_checkpoint(checkpoint_path=config.load_from)
+        print()
+        print('Loaded', config.load_from)
+        print()
 
     # Create trainer
     trainer = pl.Trainer.from_argparse_args(
@@ -37,10 +40,18 @@ def main(config):
         data_module
     )
 
+    # Save path
+    if config.save == 1:
+        model_path = os.path.join(config.save_to, config.name)
+        if not os.path.isdir(model_path):
+            os.makedirs(model_path)
+        model_path = os.path.join(model_path, f'fold_{fold}.pt')
+    else:
+        model_path = None
+
     # Save model (with optimizer and scheduler for future)
-    save_path = f'model_{config.name}.ckpt'
-    print('Saving model as', save_path)
-    trainer.save_checkpoint(save_path)
+    print('Saving model as', model_path)
+    trainer.save_checkpoint(model_path)
 
     # Test
     if len(config.test_sequences) > 0:
@@ -70,6 +81,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--load_from', type=str, default=None,
         help='saved checkpoint')
+    parser.add_argument(
+        '--save', type=int, default=0,
+        help='If 1, save trained model to ./saved_models/{name}/')
+    parser.add_argument(
+        '--save_to', type=str, default='saved_model'
+    )
 
     parser = flow_sv.pl_module.LitFlow.add_argparse_args(parser)
     parser = flow_sv.datasets.FlowDataModule.add_argparse_args(parser)
