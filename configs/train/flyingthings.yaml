@@ -1,0 +1,21 @@
+# Data paths
+train_sequences: [
+  flying_things_3d_train, driving_15mm_fast, driving_15mm_slow, driving_35mm_fast
+]
+dev_sequences: [flying_things_3d_val]
+test_sequences: [driving_15mm_slow_backwards]
+
+# Model parameters
+image_h: 256
+image_w: 256
+
+# Training parameters
+crop_h: 540
+crop_w: 540
+max_epochs: 50
+batch_size: 10
+learning_rate: 0.0001
+random_seed: 42
+
+# Evaluation parameters
+log_flow_freq: 10
