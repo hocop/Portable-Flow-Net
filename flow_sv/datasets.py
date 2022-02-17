@@ -32,8 +32,8 @@ class FlowDataModule(pl.LightningDataModule):
             FlowFlip('y', p=0.5),
             # Random conditions
             A.RandomRain(p=0.001),
-            A.RandomSunFlare(p=0.01),
-            A.RandomFog(p=0.01),
+            A.RandomSunFlare(p=0.001),
+            A.RandomFog(p=0.001),
             # Noises
             A.GaussNoise(p=0.05),
             A.ImageCompression(quality_lower=1, p=0.01),
@@ -46,16 +46,14 @@ class FlowDataModule(pl.LightningDataModule):
             A.InvertImg(p=0.02),
         ], additional_targets={
             'image_2': 'image',
-            'orig_1': 'mask',
-            'orig_2': 'mask',
             'flow_fwd': 'mask',
             'flow_bwd': 'mask',
         })
         self.augmentations_indep = A.Compose([
             # Random conditions
             A.RandomRain(p=0.001),
-            A.RandomSunFlare(p=0.01),
-            A.RandomFog(p=0.01),
+            A.RandomSunFlare(p=0.001),
+            A.RandomFog(p=0.001),
             # Noises
             A.GaussNoise(p=0.01),
             A.ImageCompression(quality_lower=1, p=0.01),
@@ -70,17 +68,6 @@ class FlowDataModule(pl.LightningDataModule):
             A.InvertImg(p=0.01),
         ])
 
-        self.augmentations_val = A.Compose([
-            # Crops
-            A.CenterCrop(self.config.crop_h, self.config.crop_w),
-        ], additional_targets={
-            'image_2': 'image',
-            'orig_1': 'mask',
-            'orig_2': 'mask',
-            'flow_fwd': 'mask',
-            'flow_bwd': 'mask',
-        })
-
         self.train_dataset = None
         self.val_datasets = None
         self.test_datasets = None
@@ -91,17 +78,22 @@ class FlowDataModule(pl.LightningDataModule):
         parser.add_argument('--train_sequences', type=list, default=None)
         parser.add_argument('--dev_sequences', type=list, default=None)
         parser.add_argument('--test_sequences', type=list, default=None)
+        parser.add_argument('--image_h', type=int, default=None)
+        parser.add_argument('--image_w', type=int, default=None)
+        parser.add_argument('--image_h_val', type=int, default=None)
+        parser.add_argument('--image_w_val', type=int, default=None)
+        parser.add_argument('--image_h_test', type=int, default=None)
+        parser.add_argument('--image_w_test', type=int, default=None)
         parser.add_argument('--batch_size', type=int, default=None)
+        parser.add_argument('--cpus', type=int, default=None)
         return parent_parser
 
     def setup(self, stage: Optional[str] = None):
         # Create training dataset
         if self.train_dataset is None:
             self.train_dataset = torch.utils.data.ConcatDataset([
-                FlowDataset(
-                    self.data_config[seq]['images'],
-                    self.data_config[seq]['flows_fwd'],
-                    self.data_config[seq]['flows_bwd'],
+                get_dataset(
+                    self.data_config[seq],
                     resize=(self.config.image_w, self.config.image_h),
                     channels_first=True,
                     augmentations_indep=self.augmentations_indep,
@@ -113,13 +105,10 @@ class FlowDataModule(pl.LightningDataModule):
         # Create validation datasets
         if self.val_datasets is None:
             self.val_datasets = [
-                FlowDataset(
-                    self.data_config[seq]['images'],
-                    self.data_config[seq]['flows_fwd'],
-                    self.data_config[seq]['flows_bwd'],
-                    resize=(self.config.image_w, self.config.image_h),
+                get_dataset(
+                    self.data_config[seq],
+                    resize=(self.config.image_w_val, self.config.image_h_val),
                     channels_first=True,
-                    augmentations_parallel=self.augmentations_val,
                 )
                 for seq in self.config.dev_sequences
             ]
@@ -127,13 +116,10 @@ class FlowDataModule(pl.LightningDataModule):
         # Create testing datasets
         if self.test_datasets is None:
             self.test_datasets = [
-                FlowDataset(
-                    self.data_config[seq]['images'],
-                    self.data_config[seq]['flows_fwd'],
-                    self.data_config[seq]['flows_bwd'],
-                    resize=(self.config.image_w, self.config.image_h),
+                get_dataset(
+                    self.data_config[seq],
+                    resize=(self.config.image_w_test, self.config.image_h_test),
                     channels_first=True,
-                    augmentations_parallel=self.augmentations_val,
                 )
                 for seq in self.config.test_sequences
             ]
@@ -143,7 +129,7 @@ class FlowDataModule(pl.LightningDataModule):
             self.train_dataset,
             batch_size=self.config.batch_size,
             shuffle=True,
-            num_workers=2,
+            num_workers=self.config.cpus,
         )
 
     def val_dataloader(self):
@@ -151,7 +137,7 @@ class FlowDataModule(pl.LightningDataModule):
             DataLoader(
                 ds,
                 batch_size=self.config.batch_size,
-                num_workers=2
+                num_workers=self.config.cpus,
             )
             for ds in self.val_datasets
         ]
@@ -161,10 +147,30 @@ class FlowDataModule(pl.LightningDataModule):
             DataLoader(
                 ds,
                 batch_size=self.config.batch_size,
-                num_workers=2
+                num_workers=self.config.cpus,
             )
             for ds in self.test_datasets
         ]
+
+
+def get_dataset(cfg, **kwargs):
+    if cfg['format'] == 'flyingthings':
+        return FlyingThingsFormatDataset(
+            cfg['images'],
+            cfg['flows_fwd'],
+            cfg['flows_bwd'],
+            **kwargs,
+        )
+    if cfg['format'] == 'flyingchairs':
+        return FlyingChairsFormatDataset(
+            cfg['path'],
+            **kwargs,
+        )
+    if cfg['format'] == 'mpi_sintel':
+        return MPISintelDataset(
+            cfg['path'],
+            **kwargs,
+        )
 
 
 class FlowFlip(A.DualTransform):
@@ -208,7 +214,7 @@ class FlowFlip(A.DualTransform):
             self.flip.add_targets(additional_targets)
 
 
-class FlowDataset(torch.utils.data.Dataset):
+class FlyingThingsFormatDataset(torch.utils.data.Dataset):
     '''
     Loads images from folders with video sequences
     '''
@@ -225,12 +231,8 @@ class FlowDataset(torch.utils.data.Dataset):
         """
         Parameters
         ----------
-        left_paths (str): list of paths to sequences of left frames
-        right_paths (str): list of paths to corresponding sequences of right frames
-        max_delta: maximum difference between indeces of two frames
-        stereo_rate (float): number from 0 to 1. How often to return stereo pairs
+        TODO
         resize (tuple or None): size to which images must be scaled
-        augmentations: albumentations augmentations
         """
 
         self.resize = resize
@@ -269,7 +271,7 @@ class FlowDataset(torch.utils.data.Dataset):
                 })
 
     def __len__(self):
-        return len(self.pairs) - 1
+        return len(self.pairs)
 
     def __getitem__(self, item):
         # Load images
@@ -295,35 +297,24 @@ class FlowDataset(torch.utils.data.Dataset):
             flow_fwd[nan_mask] = 0
 
         # Augment images
-        orig_tgt, orig_src = image_tgt, image_src
         if self.augmentations_parallel is not None:
             images = self.augmentations_parallel(
                 image=image_tgt,
                 image_2=image_src,
-                orig_1=orig_tgt,
-                orig_2=orig_src,
                 flow_bwd=flow_bwd,
                 flow_fwd=flow_fwd,
             )
             image_tgt = images['image']
             image_src = images['image_2']
-            orig_tgt = images['orig_1']
-            orig_src = images['orig_2']
             flow_bwd = images['flow_bwd']
             flow_fwd = images['flow_fwd']
         if self.augmentations_indep is not None:
-            augmented_1 = self.augmentations_indep(
+            image_tgt = self.augmentations_indep(
                 image=image_tgt,
-                mask=orig_tgt,
-            )
-            augmented_2 = self.augmentations_indep(
+            )['image']
+            image_src = self.augmentations_indep(
                 image=image_src,
-                mask=orig_src,
-            )
-            image_tgt = augmented_1['image']
-            orig_tgt = augmented_1['mask']
-            image_src = augmented_2['image']
-            orig_src = augmented_2['mask']
+            )['image']
 
         # Resize and preprocess images
         image_tgt = self.preproc(image_tgt)
@@ -341,22 +332,214 @@ class FlowDataset(torch.utils.data.Dataset):
         }
 
 
+class FlyingChairsFormatDataset(torch.utils.data.Dataset):
+    '''
+    Loads images from folders with video sequences
+    '''
+    def  __init__(
+        self,
+        path,
+        resize=None,
+        augmentations_parallel=None,
+        augmentations_indep=None,
+        channels_first=True,
+    ):
+        """
+        Parameters
+        ----------
+        TODO
+        resize (tuple or None): size to which images must be scaled
+        """
+
+        self.resize = resize
+        self.augmentations_parallel = augmentations_parallel
+        self.augmentations_indep = augmentations_indep
+        self.channels_first = channels_first
+
+        self.preproc = nnio.Preprocessing(
+            resize=resize,
+            channels_first=channels_first,
+            divide_by_255=True,
+            dtype='float32',
+        )
+
+        # Find image paths
+        all_files = sorted(os.listdir(path))
+        self.img1_paths = [os.path.join(path, f) for f in all_files if 'img1' in f]
+        self.img2_paths = [os.path.join(path, f) for f in all_files if 'img2' in f]
+        self.flow_paths = [os.path.join(path, f) for f in all_files if 'flow' in f]
+
+    def __len__(self):
+        return len(self.img1_paths)
+
+    def __getitem__(self, item):
+        # Load images
+        image_tgt = cv2.imread(self.img1_paths[item])
+        image_src = cv2.imread(self.img2_paths[item])
+        if image_tgt is None:
+            print(f'WARNING: cannot load image {self.pairs[item]["tgt"]}')
+        if image_src is None:
+            print(f'WARNING: cannot load image {self.pairs[item]["src"]}')
+        image_tgt = image_tgt[:, :, ::-1]
+        image_src = image_src[:, :, ::-1]
+
+        # Load optical flow
+        flow_bwd = flow_io.read(self.flow_paths[item])[:, :, :2].copy()
+
+        # Clear up NaN's
+        nan_mask = flow_bwd != flow_bwd
+        if nan_mask.any():
+            flow_bwd[nan_mask] = 0
+
+        # Augment images
+        if self.augmentations_parallel is not None:
+            images = self.augmentations_parallel(
+                image=image_tgt,
+                image_2=image_src,
+                flow_bwd=flow_bwd,
+            )
+            image_tgt = images['image']
+            image_src = images['image_2']
+            flow_bwd = images['flow_bwd']
+        if self.augmentations_indep is not None:
+            image_tgt = self.augmentations_indep(
+                image=image_tgt,
+            )['image']
+            image_src = self.augmentations_indep(
+                image=image_src,
+            )['image']
+
+        # Resize and preprocess images
+        image_tgt = self.preproc(image_tgt)
+        image_src = self.preproc(image_src)
+
+        if self.channels_first:
+            flow_bwd = flow_bwd.transpose([2, 0, 1])
+
+        return {
+            'image_tgt': image_tgt,
+            'image_src': image_src,
+            'flow_bwd': flow_bwd,
+        }
+
+
+class MPISintelDataset(torch.utils.data.Dataset):
+    '''
+    Loads images from folders with video sequences
+    '''
+    def  __init__(
+        self,
+        path,
+        resize=None,
+        augmentations_parallel=None,
+        augmentations_indep=None,
+        channels_first=True,
+    ):
+        """
+        Parameters
+        ----------
+        TODO
+        resize (tuple or None): size to which images must be scaled
+        """
+
+        self.resize = resize
+        self.augmentations_parallel = augmentations_parallel
+        self.augmentations_indep = augmentations_indep
+        self.channels_first = channels_first
+
+        self.preproc = nnio.Preprocessing(
+            resize=resize,
+            channels_first=channels_first,
+            divide_by_255=True,
+            dtype='float32',
+        )
+
+        # Paths
+        clean_path = path.replace('*', 'clean')
+        final_path = path.replace('*', 'final')
+        flow_path = path.replace('*', 'flow')
+
+        # Find image paths
+        all_files = sorted(os.listdir(final_path))
+        self.imgs_clean = [os.path.join(clean_path, f) for f in all_files]
+        self.imgs_final = [os.path.join(final_path, f) for f in all_files]
+        if os.path.isdir(flow_path):
+            self.flows = [os.path.join(flow_path, f) for f in sorted(os.listdir(flow_path))]
+        else:
+            self.flows = None
+
+    def __len__(self):
+        return len(self.imgs_final) - 1
+
+    def __getitem__(self, item):
+        # Load images
+        image_tgt = cv2.imread(self.imgs_final[item])
+        image_src = cv2.imread(self.imgs_final[item + 1])
+        if image_tgt is None:
+            print(f'WARNING: cannot load image {self.imgs_final[item]}')
+        if image_src is None:
+            print(f'WARNING: cannot load image {self.imgs_final[item + 1]}')
+        image_tgt = image_tgt[:, :, ::-1]
+        image_src = image_src[:, :, ::-1]
+
+        # Load optical flow
+        if self.flows is not None:
+            flow_bwd = flow_io.read(self.flows[item])[:, :, :2].copy()
+
+            # Clear up NaN's
+            nan_mask = flow_bwd != flow_bwd
+            if nan_mask.any():
+                flow_bwd[nan_mask] = 0
+
+        # Augment images
+        if self.augmentations_parallel is not None:
+            images = self.augmentations_parallel(
+                image=image_tgt,
+                image_2=image_src,
+                **({} if flow_bwd is None else {'flow_bwd': flow_bwd}),
+            )
+            image_tgt = images['image']
+            image_src = images['image_2']
+            if flow_bwd is not None:
+                flow_bwd = images['flow_bwd']
+        if self.augmentations_indep is not None:
+            image_tgt = self.augmentations_indep(
+                image=image_tgt,
+            )['image']
+            image_src = self.augmentations_indep(
+                image=image_src,
+            )['image']
+
+        # Resize and preprocess images
+        image_tgt = self.preproc(image_tgt)
+        image_src = self.preproc(image_src)
+
+        if self.channels_first and flow_bwd is not None:
+            flow_bwd = flow_bwd.transpose([2, 0, 1])
+
+        result = {
+            'image_tgt': image_tgt,
+            'image_src': image_src,
+            **({} if flow_bwd is None else {'flow_bwd': flow_bwd}),
+        }
+        if flow_bwd is not None:
+            result['flow_bwd'] = flow_bwd
+
+        return result
+
+
+
 def run_test():
     import matplotlib.pyplot as plt
     from flow_sv.utils import visualization
     from flow_sv import geometry
 
-    images_path = '/home/ruslan/data/datasets_hdd2/flow/FlyingThings3D_subset/val/image_clean/left'
-    flows_fwd_path = '/home/ruslan/data/datasets_hdd2/flow/FlyingThings3D_subset/val/flow/left/into_future/'
-    flows_bwd_path = '/home/ruslan/data/datasets_hdd2/flow/FlyingThings3D_subset/val/flow/left/into_past/'
-
-    # images_path = '/home/ruslan/data/datasets_hdd2/flow/driving/frames_cleanpass/15mm_focallength/scene_backwards/fast/left'
-    # flows_fwd_path = '/home/ruslan/data/datasets_hdd2/flow/driving/optical_flow/15mm_focallength/scene_backwards/fast/into_future/left'
-    # flows_bwd_path = '/home/ruslan/data/datasets_hdd2/flow/driving/optical_flow/15mm_focallength/scene_backwards/fast/into_past/left'
+    path = '/home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/alley_1'
 
     augmentations_parallel = A.Compose([
         # Crops
-        A.RandomCrop(540, 540),
+        # A.RandomCrop(540, 540),
+        A.RandomCrop(384, 384),
         # Flips
         FlowFlip('x', p=0.5),
         FlowFlip('y', p=0.5),
@@ -376,8 +559,6 @@ def run_test():
         A.InvertImg(p=0.1),
     ], additional_targets={
         'image_2': 'image',
-        'orig_1': 'mask',
-        'orig_2': 'mask',
         'flow_fwd': 'mask',
         'flow_bwd': 'mask',
     })
@@ -400,10 +581,8 @@ def run_test():
         A.InvertImg(p=0.01),
     ])
 
-    train_dataset = FlowDataset(
-        images_path,
-        flows_fwd_path,
-        flows_bwd_path,
+    train_dataset = MPISintelDataset(
+        path,
         # resize=(256, 256),
         channels_first=True,
         augmentations_parallel=augmentations_parallel,
@@ -416,8 +595,7 @@ def run_test():
         shuffle=False,
     )
 
-    flownet_un = nnio.ONNXModel('http://192.168.194.51:8345/flow/2021.08.31_pwc_shufflenet/pwc_shufflenet_op12.onnx')
-    flownet_sv = nnio.ONNXModel('http://192.168.194.51:8345/flow/2021.09.07_flow_sv/flow_sv_op12.onnx')
+    flownet = nnio.ONNXModel('onnx_output/2022.02.17_size512/size512_op12_simp.onnx')
 
     import matplotlib
     print(matplotlib.get_backend())
@@ -427,9 +605,6 @@ def run_test():
         image_tgt = batch['image_tgt'][0].numpy().transpose([1, 2, 0])
         image_src = batch['image_src'][0].numpy().transpose([1, 2, 0])
         flow_bwd = batch['flow_bwd'][0].numpy().transpose([1, 2, 0])
-        # flow_bwd = cv2.resize(flow_bwd, (image_tgt.shape[0], image_tgt.shape[1]))
-        flow_fwd = batch['flow_fwd'][0].numpy().transpose([1, 2, 0])
-        # flow_fwd = cv2.resize(flow_fwd, (image_tgt.shape[0], image_tgt.shape[1]))
 
         print([(key, batch[key].shape) for key in batch])
 
@@ -446,8 +621,7 @@ def run_test():
             cv2.resize(image_tgt, (256, 256)).transpose([2, 0, 1])[None],
             cv2.resize(image_src, (256, 256)).transpose([2, 0, 1])[None],
         ], 1)
-        flow_pred_un = flownet_un(net_inp)[0].transpose([1, 2, 0])
-        flow_pred_sv = flownet_sv(net_inp)[0].transpose([1, 2, 0])
+        flow_pred = flownet(net_inp)[0].transpose([1, 2, 0])
 
         fig, axes = plt.subplots(2, 3, figsize=(12, 10))
 
@@ -457,13 +631,11 @@ def run_test():
         axes[0, 1].imshow(image_src)
         axes[1, 0].set_title('src -> tgt')
         axes[1, 0].imshow(reprojection)
-        axes[1, 1].set_title('Unsupervised model')
-        axes[1, 1].imshow(visualization.flow_to_rgb(flow_pred_un))
 
         axes[0, 2].set_title('Flow')
         axes[0, 2].imshow(visualization.flow_to_rgb(flow_bwd))
         axes[1, 2].set_title('Supervised model')
-        axes[1, 2].imshow(visualization.flow_to_rgb(flow_pred_sv))
+        axes[1, 2].imshow(visualization.flow_to_rgb(flow_pred))
 
         plt.show()
 

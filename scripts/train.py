@@ -2,10 +2,12 @@
 Training script
 '''
 
+import os
 import argparse
 import pytorch_lightning as pl
 import torch
 import matplotlib
+import datetime
 matplotlib.use("agg")
 
 import flow_sv
@@ -22,7 +24,7 @@ def main(config):
     # Create lit module
     lit_module = flow_sv.pl_module.LitFlow(**config.__dict__)
     if config.load_from is not None:
-        lit_module = lit_module.load_from_checkpoint(checkpoint_path=config.load_from)
+        lit_module = lit_module.load_from_checkpoint(checkpoint_path=config.load_from, **config.__dict__)
         print()
         print('Loaded', config.load_from)
         print()
@@ -42,10 +44,11 @@ def main(config):
 
     # Save path
     if config.save == 1:
-        model_path = os.path.join(config.save_to, config.name)
+        now = datetime.datetime.now()
+        model_path = os.path.join(config.save_to, f'{now.strftime("%Y.%m.%d")}_{config.name}')
         if not os.path.isdir(model_path):
             os.makedirs(model_path)
-        model_path = os.path.join(model_path, f'fold_{fold}.pt')
+        model_path = os.path.join(model_path, f'model.pt')
     else:
         model_path = None
 

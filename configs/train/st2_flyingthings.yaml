@@ -1,0 +1,39 @@
+# Data paths
+train_sequences: [
+  flying_things_3d_train, driving_15mm_fast, driving_15mm_slow, driving_35mm_fast
+]
+dev_sequences: [flying_things_3d_val]
+test_sequences: [
+  mpi_alley_1, mpi_ambush_5, mpi_bamboo_2, mpi_cave_4, mpi_mountain_1, mpi_sleeping_2,
+  mpi_alley_2, mpi_ambush_6, mpi_bandage_1, mpi_market_2, mpi_shaman_2, mpi_temple_2,
+  mpi_ambush_2, mpi_ambush_7, mpi_bandage_2, mpi_market_5, mpi_shaman_3, mpi_temple_3, mpi_ambush_4,
+  mpi_bamboo_1, mpi_cave_2, mpi_market_6, mpi_sleeping_1,
+]
+
+# Model parameters
+image_h: 512
+image_w: 512
+image_h_val: 512
+image_w_val: 512
+image_h_test: 448
+image_w_test: 1024
+
+# Training parameters
+crop_h: 540
+crop_w: 540
+max_epochs: 25
+batch_size: 5
+learning_rate: 0.0001
+random_seed: 42
+
+# Evaluation parameters
+log_flow_freq: 10
+
+# Load pretrained model
+load_from: saved_model/fixed_save/model.pt
+
+# Project params
+wandb_project: portable_flow
+gpus: 1
+cpus: 10
+save: 1

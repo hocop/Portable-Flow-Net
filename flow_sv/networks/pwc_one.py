@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from einops import rearrange
 import torchvision
 
-from .layers import mobilenetv2
 from .layers.cost_volume import CostVolume
 from . import backends
 
@@ -27,12 +26,6 @@ def FlowPred(n_inputs, hidden_dim, expand_ratio=1):
         nn.ELU(inplace=True),
         nn.Conv2d(hidden_dim, 2, 1),
     )
-    # return nn.Sequential(
-    #     mobilenetv2.InvertedResidual(n_inputs, hidden_dim, 1, expand_ratio),
-    #     mobilenetv2.InvertedResidual(hidden_dim, hidden_dim, 1, expand_ratio),
-    #     mobilenetv2.InvertedResidual(hidden_dim, hidden_dim, 1, expand_ratio),
-    #     mobilenetv2.InvertedResidual(hidden_dim, 2, 1, expand_ratio),
-    # )
 
 
 def UpConv(n_inputs, hidden_dim, expand_ratio=1):
@@ -51,13 +44,6 @@ def UpConv(n_inputs, hidden_dim, expand_ratio=1):
         nn.BatchNorm2d(hidden_dim),
         nn.ELU(inplace=True),
     )
-    # return nn.Sequential(
-    #     nn.PixelShuffle(2),
-    #     mobilenetv2.InvertedResidual(n_inputs // 4, hidden_dim, 1, expand_ratio),
-    #     mobilenetv2.InvertedResidual(hidden_dim, hidden_dim, 1, expand_ratio),
-    #     mobilenetv2.InvertedResidual(hidden_dim, hidden_dim, 1, expand_ratio),
-    #     mobilenetv2.InvertedResidual(hidden_dim, hidden_dim, 1, expand_ratio),
-    # )
 
 
 class PWCOne(nn.Module):

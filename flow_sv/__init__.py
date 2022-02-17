@@ -1,4 +1,4 @@
-from . import datasets, networks, losses, pl_module
+from . import datasets, networks, utils, pl_module
 from .utils.initialization import initialize
 
 

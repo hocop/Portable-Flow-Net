@@ -1,0 +1,162 @@
+# FlyingThings3D_subset (https://lmb.indatasets_hddik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html)
+flying_things_3d_train:
+  images:       /home/ruslan/data/datasets_hdd/flow/FlyingThings3D_subset/train/image_clean/left
+  flows_fwd:    /home/ruslan/data/datasets_ssd/flow/FlyingThings3D_subset/train/flow/left/into_future/
+  flows_bwd:    /home/ruslan/data/datasets_ssd/flow/FlyingThings3D_subset/train/flow/left/into_past/
+  format:       flyingthings
+flying_things_3d_train_r:
+  images:       /home/ruslan/data/datasets_hdd/flow/FlyingThings3D_subset/train/image_clean/right
+  flows_fwd:    /home/ruslan/data/datasets_ssd/flow/FlyingThings3D_subset/train/flow/right/into_future/
+  flows_bwd:    /home/ruslan/data/datasets_ssd/flow/FlyingThings3D_subset/train/flow/right/into_past/
+  format:       flyingthings
+flying_things_3d_val:
+  images:       /home/ruslan/data/datasets_hdd/flow/FlyingThings3D_subset/val/image_clean/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/FlyingThings3D_subset/val/flow/left/into_future/
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/FlyingThings3D_subset/val/flow/left/into_past/
+  format:       flyingthings
+
+driving_15mm_fast:
+  images:       /home/ruslan/data/datasets_hdd/flow/driving/frames_cleanpass/15mm_focallength/scene_forwards/fast/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_forwards/fast/into_future/left
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_forwards/fast/into_past/left
+  format:       flyingthings
+driving_15mm_fast_backwards:
+  images:       /home/ruslan/data/datasets_hdd/flow/driving/frames_cleanpass/15mm_focallength/scene_backwards/fast/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_backwards/fast/into_future/left
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_backwards/fast/into_past/left
+  format:       flyingthings
+driving_15mm_slow:
+  images:       /home/ruslan/data/datasets_hdd/flow/driving/frames_cleanpass/15mm_focallength/scene_forwards/slow/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_forwards/slow/into_future/left
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_forwards/slow/into_past/left
+  format:       flyingthings
+driving_15mm_slow_backwards:
+  images:       /home/ruslan/data/datasets_hdd/flow/driving/frames_cleanpass/15mm_focallength/scene_backwards/slow/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_backwards/slow/into_future/left
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/15mm_focallength/scene_backwards/slow/into_past/left
+  format:       flyingthings
+driving_35mm_fast:
+  images:       /home/ruslan/data/datasets_hdd/flow/driving/frames_cleanpass/35mm_focallength/scene_forwards/fast/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/35mm_focallength/scene_forwards/fast/into_future/left
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/35mm_focallength/scene_forwards/fast/into_past/left
+  format:       flyingthings
+driving_35mm_slow:
+  images:       /home/ruslan/data/datasets_hdd/flow/driving/frames_cleanpass/35mm_focallength/scene_forwards/slow/left
+  flows_fwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/35mm_focallength/scene_forwards/slow/into_future/left
+  flows_bwd:    /home/ruslan/data/datasets_hdd/flow/driving/optical_flow/35mm_focallength/scene_forwards/slow/into_past/left
+  format:       flyingthings
+
+
+# Flying Chairs
+flying_chairs:
+  path:         /home/ruslan/data/datasets_hdd/flow/FlyingChairs_release/data
+  format:       flyingchairs
+
+
+# MPI Sintel Training
+mpi_alley_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/alley_1
+  format:       mpi_sintel
+mpi_ambush_5:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/ambush_5
+  format:       mpi_sintel
+mpi_bamboo_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/bamboo_2
+  format:       mpi_sintel
+mpi_cave_4:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/cave_4
+  format:       mpi_sintel
+mpi_mountain_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/mountain_1
+  format:       mpi_sintel
+mpi_sleeping_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/sleeping_2
+  format:       mpi_sintel
+mpi_alley_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/alley_2
+  format:       mpi_sintel
+mpi_ambush_6:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/ambush_6
+  format:       mpi_sintel
+mpi_bandage_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/bandage_1
+  format:       mpi_sintel
+mpi_market_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/market_2
+  format:       mpi_sintel
+mpi_shaman_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/shaman_2
+  format:       mpi_sintel
+mpi_temple_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/temple_2
+  format:       mpi_sintel
+mpi_ambush_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/ambush_2
+  format:       mpi_sintel
+mpi_ambush_7:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/ambush_7
+  format:       mpi_sintel
+mpi_bandage_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/bandage_2
+  format:       mpi_sintel
+mpi_market_5:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/market_5
+  format:       mpi_sintel
+mpi_shaman_3:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/shaman_3
+  format:       mpi_sintel
+mpi_temple_3:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/temple_3
+  format:       mpi_sintel
+mpi_ambush_4:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/ambush_4
+  format:       mpi_sintel
+mpi_bamboo_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/bamboo_1
+  format:       mpi_sintel
+mpi_cave_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/cave_2
+  format:       mpi_sintel
+mpi_market_6:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/market_6
+  format:       mpi_sintel
+mpi_sleeping_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/training/*/sleeping_1
+  format:       mpi_sintel
+# MPI Sintel Test
+mpi_ambush_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/ambush_1
+  format:       mpi_sintel
+mpi_bamboo_3:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/bamboo_3
+  format:       mpi_sintel
+mpi_market_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/market_1
+  format:       mpi_sintel
+mpi_mountain_2:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/mountain_2
+  format:       mpi_sintel
+mpi_PERTURBED_shaman_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/PERTURBED_shaman_1
+  format:       mpi_sintel
+mpi_tiger:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/tiger
+  format:       mpi_sintel
+mpi_ambush_3:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/ambush_3
+  format:       mpi_sintel
+mpi_cave_3:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/cave_3
+  format:       mpi_sintel
+mpi_market_4:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/market_4
+  format:       mpi_sintel
+mpi_PERTURBED_market_3:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/PERTURBED_market_3
+  format:       mpi_sintel
+mpi_temple_1:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/temple_1
+  format:       mpi_sintel
+mpi_wall:
+  path:         /home/ruslan/data/datasets_hdd/flow/MPI-Sintel-complete/test/*/wall
+  format:       mpi_sintel

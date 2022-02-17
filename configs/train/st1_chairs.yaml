@@ -1,6 +1,6 @@
 # Data paths
 train_sequences: [
-  flying_things_3d_train, driving_15mm_fast, driving_15mm_slow, driving_35mm_fast
+  flying_chairs,
 ]
 dev_sequences: [flying_things_3d_val]
 test_sequences: [driving_15mm_slow_backwards]
@@ -10,12 +10,19 @@ image_h: 256
 image_w: 256
 
 # Training parameters
-crop_h: 540
-crop_w: 540
-max_epochs: 50
+crop_h: 384
+crop_w: 384
+max_epochs: 25
 batch_size: 10
 learning_rate: 0.0001
 random_seed: 42
 
 # Evaluation parameters
 log_flow_freq: 10
+
+
+# Project params
+wandb_project: portable_flow
+gpus: 1
+cpus: 10
+save: 1
